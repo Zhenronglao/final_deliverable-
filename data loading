@@ -1,0 +1,41 @@
+CREATE CONSTRAINT ON (n:Student)ASSERT n.student_id is UNIQUE;
+CREATE CONSTRAINT ON (n:Race)ASSERT n.group is UNIQUE;
+CREATE CONSTRAINT ON (n:PrentalLevelOfEducation) ASSERT n.degree is UNIQUE;
+CREATE CONSTRAINT ON (n:ReadingGroup) ASSERT n.group is UNIQUE;
+CREATE CONSTRAINT ON (n: MathGroup) ASSERT n.group is UNIQUE;
+CREATE CONSTRAINT ON (n: WritingGroup) ASSERT n.group is UNIQUE;
+
+LOAD CSV WITH HEADERS FROM'file:///StudentsPerformance.csv'AS row
+CREATE(s:Student{student_id:row.student_id,
+gender:row.gender,
+lunch:row.lunch,
+test_preparation_course:row. test_preparation_course
+});
+
+LOAD CSV WITH HEADERS FROM'file:///StudentsPerformance.csv'AS row
+MATCH(i:Student{ student_id:row.student_id })
+MERGE(m:Race{group:row.race})
+MERGE(i)-[:BELONG]- >(m)
+
+LOAD CSV WITH HEADERS FROM'file:///StudentsPerformance.csv'AS row
+MATCH(i:Student{ student_id:row.student_id })
+MERGE(m: PrentalLevelOfEducation{degree:row.parental_level_of_education})
+MERGE(i)-[:HAS]- >(m)
+
+
+LOAD CSV WITH HEADERS FROM'file:///StudentsPerformance.csv'AS row
+MATCH(i:Student{ student_id:row.student_id })
+MERGE(m:ReadingGroup{group:row.reading_pass})
+MERGE(i)-[:HAS_READING_GRADE{reading_score:row.reading_score}]- >(m)
+
+LOAD CSV WITH HEADERS FROM'file:///StudentsPerformance.csv'AS row
+MATCH(i:Student{ student_id:row.student_id })
+MERGE(m:MathGroup{group:row.math_pass})
+MERGE(i)-[:HAS_MATH_GRADE{math_score:row.math_score}]- >(m)
+
+LOAD CSV WITH HEADERS FROM'file:///StudentsPerformance.csv'AS row
+MATCH(i:Student{ student_id:row.student_id })
+MERGE(m:WritingGroup{group:row.writing_pass})
+MERGE(i)-[:HAS_WRITING_GRADE{writing_score:row.writing_score}]- >(m)
+
+
