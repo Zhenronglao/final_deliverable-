@@ -1,0 +1,25 @@
+CALL gds.graph.create.cypher(
+'student-race-cypher',
+'MATCH (n:Student) RETURN id(n) AS id',
+'MATCH (p1:Student)-[:BELONG]->(c:Race)<-[:BELONG]-(p2:Student) RETURN id(p1) AS source, id(p2) AS target'
+)
+
+CALL gds.wcc.stream('student-race-cypher')
+YIELD nodeId, componentId
+RETURN componentId AS component, count(nodeId) AS size 
+ORDER BY size DESC
+
+CALL gds.graph.create('student-PLE','Student','HAS_SAME_PLE')
+
+CALL gds.louvain.stream('student-PLE')
+YIELD nodeId, communityId
+RETURN communityId, COUNT(DISTINCT nodeId) AS size
+ORDER BY score DESC 
+
+CALL gds.graph.create('student-grade', ['Student', 'MathGroup', 'ReadingGroup', 'WritingGroup'], '*')
+
+CALL gds.nodeSimilarity.stream('student-grade',{degreeCutoff: 20})
+YIELD node1, node2, similarity
+RETURN gds.util.asNode(node1).student_id AS student1 , gds.util.asNode(node2).student_id AS student2, similarity
+ORDER BY similarity DESC
+LIMIT 4
