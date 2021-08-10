@@ -1,0 +1,42 @@
+MATCH (s:MathGroup)
+WITH s,SIZE((s)-[:HAS_MATH_GRADE]-()) AS math_degree
+RETURN s.math_letter_grade AS math_letter_grade ,math_degree
+ORDER BY math_letter_grade
+
+MATCH (s1:ReadingGroup)
+WITH s1,SIZE((s1)-[:HAS_READING_GRADE]-()) AS reading_degree
+RETURN s1.reading_letter_grade AS reading_letter_grade ,reading_degree
+ORDER BY reading_letter_grade
+
+MATCH (s2:WritingGroup)
+WITH s2,SIZE((s2)-[:HAS_WRITING_GRADE]-()) AS writing_degree
+RETURN s2.writing_letter_grade AS writing_letter_grade ,writing_degree
+ORDER BY writing_letter_grade
+
+MATCH
+(s: Student{test_preparation_course:"completed"})
+RETURN count(s)
+
+MATCH (s1: Student{test_preparation_course:"completed"})-[i1: HAS_MATH_GRADE]-(m:MathGroup)
+WHERE m.math_letter_grade="A" OR m.math_letter_grade='B' OR m.math_letter_grade='C' 
+RETURN count(s1)
+
+MATCH (s2: Student{test_preparation_course:"completed"})-[i2:HAS_WRITING_GRADE]-(w:WritingGroup)
+WHERE w.writing_letter_grade="A" OR w.writing_letter_grade ='B' OR w.writing_letter_grade='C' 
+RETURN count(s2) 
+
+MATCH (s3: Student{test_preparation_course:"completed"})-[i3:HAS_READING_GRADE]-(r:ReadingGroup)
+WHERE r.reading_letter_grade='A' OR r.reading_letter_grade='B' OR r.reading_letter_grade='C'
+RETURN count(s3) 
+
+MATCH (s1: Student{gender:"male"})- [r1: HAS_MATH_GRADE]- (m1: MathGroup)
+WHERE m1.math_letter_grade<>"D" AND m1.math_letter_grade<>"F" 
+RETURN count(s1) as male_math_pass
+
+MATCH (s2: Student{gender:"male"})- [r2: HAS_READING_GRADE]- (m2:ReadingGroup)
+WHERE m2.reading_letter_grade<>"D" AND m2.reading_letter_grade<>"F" 
+RETURN count(s2) as male_math_pass
+
+MATCH (s3: Student{gender:"male"})- [r3: HAS_WRITING_GRADE]- (m3: WritingGroup)
+WHERE m3.writing_letter_grade<>"D" AND m3.writing_letter_grade<>"F" 
+RETURN count(s3) as male_writing_pass
